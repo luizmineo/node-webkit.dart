@@ -2,6 +2,7 @@
 packages/
 .project
 .buildlog
+*.precompiled.js
 *.js_
 *.js.deps
 *.js.map
