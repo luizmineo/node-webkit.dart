@@ -7,11 +7,13 @@ main() {
 
   File file = new File(path1);
 
+  print("File reference created!");
+
   file.exists().then((exists) => print("$path1 exists? $exists"));
 
   File file2 = new File(path2);
 
   file2.exists().then((exists) => print("$path2 exists? $exists"));
-  
+
 }
 
