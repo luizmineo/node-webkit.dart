@@ -1,18 +1,345 @@
 <!DOCTYPE html>
-
 <html>
   <head>
-    <title>node-webkit.dart test</title>
+    <title>node-webkit.dart examples</title>
   </head>
   
   <body>
-    <script type="application/javascript">
-      function testDartJsInterop(callback) {
-        callback([1, 2, 3, 4]);
-      }
-    </script>
     <script type="application/dart" src="index.dart"></script>
-    <script src="packages/browser/dart.js"></script>
     <script src="packages/browser/interop.js"></script>
+    <script src="packages/node-webkit/node_webkit.js"></script>
+    <script src="packages/browser/dart.js"></script>
+
+    <link rel="stylesheet" href="bootstrap.min.css">
+
+    <div class="container">
+      <div class="page-header">
+        <h1>node-webkit.dart examples</h1>
+      </div>
+
+      <h3 style="margin-top:40px">nw-gui</h3>
+      <p>Import the <strong>nw-gui</strong> library to use the node-webkit API</p>
+      
+      <pre> import 'package:node-webkit/nw_gui.dart' as gui;</pre>
+
+      <h4 style="margin-top:40px">Menubar</h4>
+      <p>The following code shows how you can use the <strong>Menu and MenuItem classes</strong> to create a <strong>menubar</strong></p>
+      <pre>
+  var windowMenu = new gui.Menu(type: "menubar");
+
+  var submenu1 = new gui.Menu();
+  var menu1 = new gui.MenuItem(label: "Menu 1", submenu: submenu1);
+
+  submenu1.append(new gui.MenuItem(label: "Menu Item 1"));
+  submenu1.append(new gui.MenuItem(label: "Menu Item 2"));
+  submenu1.append(new gui.MenuItem(label: "Menu Item 3"));
+
+  submenu1.items.forEach((item) {
+    item.onClick.listen((event) => print("${item.label} selected!"));
+  });
+
+  windowMenu.append(menu1);
+
+  new gui.Window.get().menu = windowMenu;</pre>
+
+      <h4 style="margin-top:40px">Context Menu</h4>
+      <p>The following code shows how you can use the <strong>Menu and MenuItem classes</strong> to create a <strong>context menu</strong></p>
+      <pre>
+  var contextMenu = new gui.Menu();
+
+  contextMenu.append(new gui.MenuItem(label: "Menu Item 1"));
+  contextMenu.append(new gui.MenuItem(label: "Menu Item 2"));
+  contextMenu.append(new gui.MenuItem(label: "Menu Item 3"));
+
+  contextMenu.items.forEach((item) {
+    item.onClick.listen((event) => print("${item.label} selected!"));
+  });
+
+  //NOTE: this [window] instance comes from dart:html
+  window.onContextMenu.listen((event) => contextMenu.popup(event.page.x, event.page.y));</pre>
+
+      <h4 style="margin-top:40px">Window</h4>
+      <p>You can maximize, minimize and restore a window programmatically</p>
+
+      <button id="btn_maximize" type="button" class="btn btn-primary">Maximize</button>
+      <button id="btn_unmaximize" type="button" class="btn btn-primary">Unmaximize</button>
+      <button id="btn_minimize" type="button" class="btn btn-primary">Minimize</button>
+      <button id="btn_restore" type="button" class="btn btn-primary">Minimize and restore</button>
+      <pre style="margin-top:10px">
+  querySelector("#btn_maximize").onClick.listen((event) => new gui.Window.get().maximize());
+  querySelector("#btn_unmaximize").onClick.listen((event) => new gui.Window.get().unmaximize());
+  querySelector("#btn_minimize").onClick.listen((event) => new gui.Window.get().minimize());
+  querySelector("#btn_restore").onClick.listen((event) {
+    new gui.Window.get().minimize();
+    new Timer(const Duration(seconds: 2), () => new gui.Window.get().restore());
+  });</pre>
+
+      <h5>Fullscreen mode</h5>
+
+      <button id="btn_fullscreen" type="button" class="btn btn-primary">Enter fullscreen</button>
+      <button id="btn_leavefullscreen" type="button" class="btn btn-primary">Leave fullscreen</button>
+      <pre style="margin-top:10px">
+  querySelector("#btn_fullscreen").onClick.listen((event) => new gui.Window.get().enterFullscreen());
+  querySelector("#btn_leavefullscreen").onClick.listen((event) => new gui.Window.get().leaveFullscreen());</pre>
+
+      <h5>Kiosk mode</h5>
+
+      <button id="btn_kiosk" type="button" class="btn btn-primary">Enter kiosk mode</button>
+      <button id="btn_leavekiosk" type="button" class="btn btn-primary">Leave kiosk mode</button>
+      <pre style="margin-top:10px">
+  querySelector("#btn_fullscreen").onClick.listen((event) => new gui.Window.get().enterFullscreen());
+  querySelector("#btn_leavefullscreen").onClick.listen((event) => new gui.Window.get().leaveFullscreen());</pre>
+
+      <h4 style="margin-top:40px">Accessing the system clipboard</h4>
+
+      <textarea name="clipboard" id="clipboard" rows="10" style="margin-bottom:10px;width:100%">
+Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum
+      </textarea>
+      <button id="btn_copyclipboard" type="button" class="btn btn-primary">Copy text to clipboard</button>
+      <button id="btn_pasteclipboard" type="button" class="btn btn-primary">Paste text from clipboard</button>
+
+      <pre style="margin-top:10px">
+  querySelector("#btn_copyclipboard").onClick.listen((event) {
+    new gui.Clipboard.get().data = (querySelector("#clipboard") as TextAreaElement).value;
+  });
+  querySelector("#btn_pasteclipboard").onClick.listen((event) {
+    (querySelector("#clipboard") as TextAreaElement).value = new gui.Clipboard.get().data;
+  });</pre>
+
+      <h4 style="margin-top:40px">Getting command line arguments</h4>
+
+      <p id="commandline"></p>
+      <pre>
+  querySelector("#commandline").text = "Command line args: ${gui.App.argv}";</pre>
+
+      <h3 style="margin-top:40px">node-filesystem</h3>
+      <p>The <strong>node-filesystem</strong> library provides access to the functions of the <strong>nodejs fs</strong> module</p>
+      <pre>
+  import 'package:node-webkit/node_filesystem.dart' as fs;</pre>
+
+      <h4 style="margin-top:40px">Reading files</h4>
+
+      <p>Select a text file:</p>
+      <input type="file" id="input_file_origin1"/>
+      <textarea name="textarea_filecontent1" id="textarea_filecontent1" rows="10" style="margin-bottom:10px;margin-top:10px;width:100%"></textarea>
+
+      <pre>
+  var inputFileOrigin = querySelector("#input_file_origin1");
+  inputFileOrigin.onChange.listen((event) {
+    var filePath = fs.getPath(inputFileOrigin.files[0]);
+    fs.readFileAsString(filePath).then((text) {
+      (querySelector("#textarea_filecontent1") as TextAreaElement).value = text;
+    });
+  });</pre>
+
+      <h4 style="margin-top:40px">Writing files</h4>
+
+      <textarea name="textarea_filecontent" id="textarea_filecontent" rows="10" style="margin-bottom:10px;margin-top:10px;width:100%"></textarea>
+      <input type="file" id="input_file_destiny" nwsaveas/>
+      <div class="alert alert-warning" style="margin-top:10px"><strong>Warning: </strong> If the file already exists, it will be overwritten</div>
+      <div style="padding-bottom:10px">
+        <button id="btn_nodesavefile" type="button" class="btn btn-primary">Save file</button>
+      </div>
+
+      <pre>
+  var inputFileDestiny = querySelector("#input_file_destiny");
+  var textElement = querySelector("#textarea_filecontent");
+  querySelector("#btn_nodesavefile").onClick.listen((event) {
+    if(inputFileDestiny.files.isEmpty) {
+      return;
+    }
+    var filePath = fs.getPath(inputFileDestiny.files[0]);
+    fs.writeFileAsString(filePath, textElement.value).then((_) => print("file $filePath saved"));
+  });</pre>
+
+      <h3 style="margin-top:40px">dart-filesystem</h3>
+      <p>The <strong>dart-filesystem</strong> complements the node-filesystem library, and provides the <strong>FileSystemEntity, File, Directory and Link classes</strong>, so you can access the filesystem as you would do with <strong>dart:io</strong></p>
+
+      <pre>
+  import 'package:node-webkit/dart_filesystem.dart';</pre>
+
+      <h4 style="margin-top:40px">Reading files line by line</h4>
+
+      <p>Select a text file:</p>
+      <input type="file" id="input_file_origin2"/>
+      <textarea name="textarea_filecontent2" id="textarea_filecontent2" rows="10" style="margin-bottom:10px;margin-top:10px;width:100%"></textarea>
+
+      <pre>
+  var dartInputFile = querySelector("#input_file_origin2");
+  var dartTextElement = querySelector("#textarea_filecontent2");
+  dartInputFile.onChange.listen((event) {
+    var filePath = fs.getPath(dartInputFile.files[0]);
+    dartTextElement.value = "";
+
+    var file = new File(filePath);
+    file.openReadAsString()
+        .transform(new LineSplitter())
+        .listen((line) {
+          dartTextElement.value += "$line\n";
+        },
+        onDone: () => print("Finished reading file $filePath"),
+        onError: (err) => print("Failed to read file $filePath: $err"));
+  });
+      </pre>
+
+      <p>Also, you can use the classes of <strong>dart:convert</strong> to transform from bytes to String</p>
+      
+      <pre>
+  var dartInputFile = querySelector("#input_file_origin2");
+  var dartTextElement = querySelector("#textarea_filecontent2");
+  dartInputFile.onChange.listen((event) {
+    var filePath = fs.getPath(dartInputFile.files[0]);
+    dartTextElement.value = "";
+
+    var file = new File(filePath);
+    <b>file.openRead()
+        .transform(UTF8.decoder)</b>
+        .transform(new LineSplitter())
+        .listen((line) {
+          dartTextElement.value += "$line\n";
+        },
+        onDone: () => print("Finished reading file $filePath"),
+        onError: (err) => print("Failed to read file $filePath: $err"));
+  });</pre>
+    
+      <h4 style="margin-top:40px">Listing directories</h4> 
+
+      <p>Select a directory:</p>
+      <input type="file" id="dart_readdir" nwdirectory/>
+      <input type="checkbox" id="recursive"/> Recursive
+      <div style="padding-top:10px;padding-bottom:10px">
+        <button id="btn_listdir" type="button" class="btn btn-primary">List directory</button>
+        <button id="btn_cancellistdir" type="button" class="btn btn-primary" disabled="disabled">Cancel</button>
+        <button id="btn_pauselistdir" type="button" class="btn btn-primary" disabled="disabled">Pause</button>
+        <button id="btn_resumelistdir" type="button" class="btn btn-primary" disabled="disabled">Resume</button>
+      </div>
+      <textarea name="dart_readdirres" id="dart_readdirres" rows="10" style="margin-bottom:10px;margin-top:10px;width:100%"></textarea>     
+
+      <pre>
+  var dartInputDir = querySelector("#dart_readdir");
+  var dartTextElementDir = querySelector("#dart_readdirres");
+  var recursiveCheck = querySelector("#recursive");
+
+  var buttonListDir = querySelector("#btn_listdir");
+  var buttonPause = querySelector("#btn_pauselistdir");
+  var buttonCancel = querySelector("#btn_cancellistdir");
+  var buttonResume = querySelector("#btn_resumelistdir");
+
+  var subscription;
+
+  buttonListDir.onClick.listen((event) {
+    if (dartInputDir.files.isEmpty) {
+      return;
+    }
+    var dirPath = fs.getPath(dartInputDir.files[0]);
+    dartTextElementDir.value = "";
+    
+    <b>Directory dir = new Directory(dirPath);
+    subscription = dir.list(recursive: recursiveCheck.checked)
+      .listen((entity) {
+          dartTextElementDir.value += "${entity is File ? 'File' : 'Directory'}: ${entity.path}\n";
+        }, 
+        onError: (err) => print("Error received while listing $dirPath: $err"), 
+        onDone: () {
+          print("Finished listing $dirPath");
+          buttonPause.disabled = true;
+          buttonResume.disabled = true;
+          buttonCancel.disabled = true;
+          buttonListDir.disabled = false;
+        }
+      );</b>
+
+    buttonListDir.disabled = true;
+    buttonPause.disabled = false;
+    buttonCancel.disabled = false;
+  });
+
+  buttonPause.onClick.listen((event) {
+    <b>subscription.pause();</b>
+    buttonPause.disabled = true;
+    buttonResume.disabled = false;
+  });
+
+  buttonCancel.onClick.listen((event) {
+    <b>subscription.cancel();</b>
+    buttonPause.disabled = true;
+    buttonResume.disabled = true;
+    buttonCancel.disabled = true;
+    buttonListDir.disabled = false;
+  });
+
+  buttonResume.onClick.listen((event) {
+    <b>subscription.resume();</b>
+    buttonPause.disabled = false;
+    buttonResume.disabled = true;
+  });
+      </pre>
+
+      <h4 style="margin-top:40px">Copying files</h4>
+
+      <label for="input_file_copy_from">Copy from:</label>
+      <input type="file" id="input_file_copy_from"/>
+      <label for="input_file_copy_from" style="padding-top:5px">To:</label>
+      <input type="file" id="input_file_copy_to" nwsaveas/>
+      <div class="alert alert-warning" style="margin-top:10px"><strong>Warning: </strong> If the destiny file already exists, it will be overwritten</div>
+      <div style="padding-bottom:10px">
+        <button id="btn_copy_file" type="button" class="btn btn-primary">Copy</button>
+      </div>
+
+      <p id="copy_progress"></p>
+
+      <pre>
+  var inputFileFrom = querySelector("#input_file_copy_from");
+  var inputFileTo = querySelector("#input_file_copy_to");
+  var buttonCopy = querySelector("#btn_copy_file");
+  var progress = querySelector("#copy_progress");
+
+  buttonCopy.onClick.listen((event) {
+
+    if (inputFileFrom.files.isEmpty || inputFileTo.files.isEmpty) {
+      return;
+    }
+
+    File fileFrom = new File(fs.getPath(inputFileFrom.files[0]));
+    File fileTo = new File(fs.getPath(inputFileTo.files[0]));
+
+    var writer;
+    try {
+      writer = fileTo.openWrite();
+    } catch (err) {
+      print("Failed to open file ${fileTo.path}: $err");
+      progress.text = "Failed to open file ${fileTo.path}: $err";
+    }
+
+    var reader;
+    try {
+      reader = fileFrom.openReadSync();
+    } catch (err) {
+      print("Failed to open file ${fileFrom.path}: $err");
+      progress.text = "Failed to open file ${fileFrom.path}: $err";
+    }
+
+    progress.text = "Copying file...";
+
+    reader.onReadable.listen((_) {
+      var data;
+      while ((data = reader.read(1024)) != null) {
+        writer.write(data);
+      }
+    });
+    reader.onEnd.listen((_) {
+      writer.close();
+      print("File ${fileFrom.path} copied to ${fileTo.path}");
+      progress.text = "File ${fileFrom.path} copied to ${fileTo.path}";
+    });
+    reader.onError.listen((err) {
+      print("Failed to copy file: $err");
+      progress.text = "Failed to copy file: $err";
+    });
+
+  });
+      </pre>
+
+    </div>
   </body>
 </html>

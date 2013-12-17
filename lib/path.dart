@@ -2,73 +2,48 @@ library path;
 
 import 'dart:js';
 
+import 'package:node-webkit/nodejs_module_wrapper.dart';
 
-final JsObject _path = context.callMethod("require", ["path"]);
+
+final NodeObject _path = new NodeObject("path");
+
+PathException _errorHandler(JsObject error) => new PathException(error['message']);
 
 
 String join(List<String> paths) {
-  try {
-    return _path.callMethod("join", paths);
-  } catch (err) {
-    throw new PathException(err['message']);
-  }
+  return _path.callFunction("join", paths, errorHandler: _errorHandler);
 }
 
 String resolve(List<String> from, String to) {
-  try {
-    from.add(to);
-    return _path.callMethod("resolve", from);
-  } catch (err) {
-    throw new PathException(err['message']);
-  }
+  return _path.callFunction("resolve", from..add(to), errorHandler: _errorHandler);
 }
 
 String relative(String from, String to) {
-  try {
-    return _path.callMethod("relative", [from, to]);
-  } catch (err) {
-    throw new PathException(err['message']);
-  }
+  return _path.callFunction("relative", [from, to], errorHandler: _errorHandler);
 }
 
 String normalize(String path) {
-  try {
-    return _path.callMethod("normalize", [path]);
-  } catch (err) {
-    throw new PathException(err['message']);
-  }
+  return _path.callFunction("normalize", [path], errorHandler: _errorHandler);
 }
 
 String dirname(String path) {
-  try {
-    return _path.callMethod("dirname", [path]);
-  } catch (err) {
-    throw new PathException(err['message']);
-  }
+  return _path.callFunction("dirname", [path], errorHandler: _errorHandler);
 }
 
 String basename(String path) {
-  try {
-    return _path.callMethod("basename", [path]);
-  } catch (err) {
-    throw new PathException(err['message']);
-  }
+  return _path.callFunction("basename", [path], errorHandler: _errorHandler);
 }
 
 String extname(String path) {
-  try {
-    return _path.callMethod("extname", [path]);
-  } catch (err) {
-    throw new PathException(err['message']);
-  }
+  return _path.callFunction("extname", [path], errorHandler: _errorHandler);
 }
 
-String sep() {
-  return _path['sep'];
+String get sep {
+  return _path["sep"];
 }
 
-String delimiter() {
-  return _path['delimiter'];
+String get delimiter {
+  return _path["delimiter"];
 }
 
 class PathException {

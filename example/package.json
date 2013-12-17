@@ -1,4 +1,9 @@
 {
-  "name": "nw-dart-test",
-  "main": "index.html"
+  "name": "nw-dart-examples",
+  "main": "index.html",
+  "window": {
+    "width": 1000,
+    "height": 580,
+    "position": "center"
+  }
 }

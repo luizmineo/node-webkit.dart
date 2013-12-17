@@ -42,8 +42,34 @@ abstract class FileSystemEntity {
 
   Future<bool> exists() => fs.exists(path);
 
+  bool existsSync() => fs.existsSync(path);
+
   Future<FileSystemEntity> rename(String newPath) {
-    return fs.rename(path, newPath).then((_) => new File(newPath));
+    return fs.rename(path, newPath).then((_) { 
+      return fs.stat(newPath)
+          .then((stat) {
+            if (stat.isDirectory) {
+              return new Directory(newPath);
+            } else if (stat.isSymbolicLink) {
+              return new Link(newPath);
+            } else {
+              return new File(newPath);
+            }
+          });
+    });
+  }
+
+  FileSystemEntity renameSync(String newPath) {
+    fs.renameSync(path, newPath);
+    
+    var stat = fs.statSync(newPath);
+    if (stat.isDirectory) {
+      return new Directory(newPath);
+    } else if (stat.isSymbolicLink) {
+      return new Link(newPath);
+    } else {
+      return new File(newPath);
+    }
   }
 
   Future<fs.FileStat> stat() => fs.stat(path);
@@ -54,10 +80,16 @@ abstract class FileSystemEntity {
 
   fs.FileStat lstatSync() => fs.lstatSync(path);  
 
+  Future<DateTime> lastModified() {
+    return fs.stat(path).then((stat) => stat.mtime);
+  }
+
+  DateTime lastModifiedSync() => fs.statSync(path).mtime;
+
   Future<FileSystemEntity> _delete({bool recursive: false});
 
   Future<FileSystemEntity> delete({bool recursive: false}) {
-    _delete(recursive: recursive);
+    return _delete(recursive: recursive);
   }
 
 }
@@ -68,16 +100,32 @@ class File extends FileSystemEntity {
   File(String path) 
       : super(path);
 
+  File get absolute => new File(fs.realPathSync(path));
+
   String get ext => pathModule.extname(path);
 
-  Future<File> create() {
+  Future<File> create({bool recursive: false}) {
     return exists().then((exists) {
       if (exists) {
         return this;
       } else {
-        return fs.createFile(path).then((_) => this);
+        if (!recursive) {
+          return fs.createFile(path).then((_) => this);
+        } else {
+          return parent.create(recursive: true)
+            .then((_) => fs.createFile(path)).then((_) => this);
+        }
       }
     });
+  }
+
+  void createSync({bool recursive: false}) {
+    if (!existsSync()) {
+      if (recursive) {
+        parent.createSync(recursive: true);
+      }
+      fs.createFileSync(path);
+    }
   }
 
   Future<File> _delete({bool recursive: false}) {
@@ -94,13 +142,11 @@ class File extends FileSystemEntity {
     fs.deleteFileSync(path);
   }
 
-  Future<DateTime> lastModified() {
-    return fs.stat(path).then((stat) => stat.mtime);
-  }
-
   Future<int> length() {
    return fs.stat(path).then((stat) => stat.size); 
   }
+
+  int lengthSync() => fs.statSync(path).size;
 
   Stream<List<int>> openRead([int start, int end]) {
     return fs.openRead(path, start: start, end: end);
@@ -110,11 +156,19 @@ class File extends FileSystemEntity {
     return fs.openReadAsString(path, start: start, end: end);
   }
 
-  fs.FileOutputStream<List<int>> openWrite({String flags: "w", int mode: 0666}) {
+  fs.FileInputStream<List<int>> openReadSync([int start, int end]) {
+    return fs.openReadSync(path, start: start, end: end);
+  }
+
+  fs.FileInputStream<String> openReadSyncAsString([int start, int end]) {
+    return fs.openReadSyncAsString(path, start: start, end: end);
+  }
+
+  fs.FileOutputStream<List<int>> openWrite({String flags, int mode}) {
     return fs.openWrite(path, mode: mode, flags: flags);
   }
 
-  fs.FileOutputStream<String> openWriteAsString({String flags: "w", int mode: 0666, String encoding: "utf8"}) {
+  fs.FileOutputStream<String> openWriteAsString({String flags, int mode, String encoding: "utf8"}) {
     return fs.openWriteAsString(path, mode: mode, flags: flags, encoding: encoding);
   }
 
@@ -122,8 +176,14 @@ class File extends FileSystemEntity {
     return fs.readFile(path);
   }
 
+  List<int> readAsBytesSync() => fs.readFileSync(path);
+
   Future<String> readAsString({String encoding: "utf8"}) {
     return fs.readFileAsString(path, encoding: encoding);
+  }
+
+  String readAsStringSync({String encoding: "utf8"}) {
+    return fs.readFileAsStringSync(path, encoding: encoding);
   }
 
   List<String> _decodeLines(String data) {
@@ -149,15 +209,83 @@ class File extends FileSystemEntity {
     });
   }
 
-  Future<File> writeAsBytes(List<int> data, {String flags: "w", int mode: 0666}) {
+  List<String> readAsLinesSync({String encoding: "utf8"}) {
+    return _decodeLines(readAsStringSync(encoding: encoding));
+  }
+
+  Future<File> writeAsBytes(List<int> data, {String flags, int mode}) {
     return fs.writeFile(path, data, flags: flags, mode: mode).then((_) => this);
   }
 
+  void writeAsBytesSync(List<int> data, {String flags, int mode}) {
+    fs.writeFileSync(path, data, flags: flags, mode: mode);
+  }
+
   Future<File> writeAsString(String contents, 
-              {String flags: "w", int mode: 0666, String encoding: "utf8"}) {
+              {String flags, int mode, String encoding: "utf8"}) {
     return fs.writeFileAsString(path, contents, 
         flags: flags, mode: mode, encoding: encoding).then((_) => this);
   }
+
+  void writeAsStringSync(String contents, 
+              {String flags, int mode, String encoding: "utf8"}) {
+    return fs.writeFileAsStringSync(path, contents, 
+        flags: flags, mode: mode, encoding: encoding);
+  }
+}
+
+class Link extends FileSystemEntity {
+  
+  Link(String path) 
+      : super(path);
+
+
+  Future<Link> create(String target, {recursive: false}) {
+    return exists().then((exists) {
+      if (exists) {
+        return this;
+      } else {
+        if (!recursive) {
+          return fs.symlink(path, target).then((_) => this);
+        } else {
+          return parent.create(recursive: true)
+            .then((_) => fs.symlink(path, target)).then((_) => this);
+        }
+      }
+    });
+  }
+
+  void createSync(String target, {bool recursive: false}) {
+    if (!existsSync()) {
+      if (recursive) {
+        parent.createSync(recursive: true);
+      }
+      fs.symlinkSync(path, target);
+    }
+  }
+
+  Future<Link> _delete({bool recursive: false}) {
+    if(recursive) {
+      return new Directory(path)._delete(recursive: true).then((_) => this);
+    }
+    return fs.deleteFile(path).then((_) => this);
+  }
+
+  void _deleteSync({bool recursive: false}) {
+    if(recursive) {
+      return new Directory(path)._deleteSync(recursive: true);
+    }
+    fs.deleteFileSync(path);
+  }
+
+  Future<String> target() => fs.readlink(path);
+  
+  String targetSync() => fs.readlinkSync(path);
+
+  Future<Link> update(String target) => fs.symlink(path, target);
+
+  void updateSync(String target) => fs.symlinkSync(path, target);
+  
 }
 
 
@@ -167,7 +295,7 @@ class Directory extends FileSystemEntity {
       : super(path);
 
 
-  Future<Directory> create({recursive: false}) {
+  Future<Directory> create({bool recursive: false}) {
     return exists().then((exists) {
       if (exists) {
         return this;
@@ -182,73 +310,116 @@ class Directory extends FileSystemEntity {
     });
   }
 
-  Stream<FileSystemEntity> list({bool recursive: false}) {
+  void createSync({bool recursive: false}) {
+    if (!existsSync()) {
+      if (recursive) {
+        parent.createSync(recursive: true);
+      }
+      fs.createDirSync(path);
+    }
+  }
+
+  Stream<FileSystemEntity> list({bool recursive: false, bool followLinks: true}) {
     
     var controller;
     var paused = false;
 
-    var stack = [this];
+    var state = null;
+
     var canceled = false;
 
-    readDir() {
-      if (paused || canceled) {
-        return;
+    doStat(fpath) {
+      if (followLinks) {
+        return fs.stat(fpath);
       }
+      return fs.lstat(fpath);
+    };
 
-      if (stack.isEmpty) {
-        controller.close();
-        return;
-      }
+    saveState() {
+      state = new Completer();
+      return state.future;
+    };
 
-      var dir = stack.removeAt(0);
-      fs.readDir(dir.path).then((filenames) {
+    var handleDir;
 
-        return Future.wait(
-          filenames.map((filename) {
+    listEntity(Directory parent, String filename) {
+      var filePath = pathModule.join([parent.path, filename]);
 
-            var filePath = pathModule.join([dir.path, filename]);
-
-            return FileSystemEntity.isDirectory(filePath)
-                .then((isDirectory) {
-                  if (isDirectory) {
-                    return new Directory(filePath);
-                  }
-                  return new File(filePath);
-                });
-          })
-        ).then((entities) {
-          if(canceled) {
-            return;
-          }
-
-          var stackPos = 0;
-          entities.forEach((entity) {
-            if(recursive && entity is Directory) {
-              stack.insert(stackPos++, entity);  
+      return doStat(filePath)
+          .then((stat) {
+            var entity;
+            if (stat.isDirectory) {
+              entity = new Directory(filePath);
+            } else if (stat.isSymbolicLink) {
+              entity = new Link(filePath);
+            } else {
+              entity = new File(filePath);
             }
-            controller.add(entity);
+
+            if (!canceled) {
+              controller.add(entity);
+              if (recursive && entity is Directory) {
+                return handleDir(entity);
+              }
+            }
+
           });
-        });
-      }).then((_) => readDir())
-      .catchError((error) {
-        controller.addError(error);
-        controller.close();
+    } 
+
+    listDir(Directory dir) {
+      return fs.readDir(dir.path).then((filenames) {
+        return Future.forEach(filenames, (filename) {
+            if (canceled) {
+              return null;
+            }
+            if (paused) {
+              return saveState().then((_) => listEntity(dir, filename));
+            }
+             
+            return listEntity(dir, filename);           
+          });
       });
     }
 
-    var onStart = () {
-      readDir();
+    handleDir = (Directory dir) {
+      if (canceled) {
+        return null;
+      }
+
+      Future f;
+      if (paused) {
+        f = saveState().then((_) => listDir(dir));
+      } else {
+        f = listDir(dir);
+      }
+
+      return f.catchError((error) {
+        controller.addError(error);
+      });
     };
 
-    var onPause = () => paused = true;
+    onStart() {
+      handleDir(this).then((_) {
+        if (!canceled) {
+          controller.close();
+        }
+      });
+    };
 
-    var onResume = () {
+    onPause() => paused = true;
+
+    onResume() {
       paused = false;
-      readDir();
+      if (state != null) {
+        state.complete();
+        state = null;
+      }
     };
 
-    var onCancel = () {
+    onCancel() {
       canceled = true;
+      state = null;
+      controller = null;
     };
 
     controller = new StreamController<FileSystemEntity>(
@@ -260,24 +431,33 @@ class Directory extends FileSystemEntity {
     return controller.stream;
   }
 
-  List<FileSystemEntity> listSync({bool recursive: false}) {
+  List<FileSystemEntity> listSync({bool recursive: false, bool followLinks: true}) {
     
     var files = [];
-    var subdirs = [];
+
+    var doStat = (fpath) {
+      if (followLinks) {
+        return fs.statSync(fpath);
+      }
+      return fs.lstatSync(fpath);
+    };
+
     fs.readDirSync(path).map((filename) {
       var filePath = pathModule.join([path, filename]);
-      if (FileSystemEntity.isDirectorySync(filePath)) {
+      var stat = doStat(filePath);
+      if (stat.isDirectory) {
         return new Directory(filePath);
+      } else if (stat.isSymbolicLink) {
+        return new Link(filePath);
+      } else {
+        return new File(filePath);
       }
-      return new File(filePath);
     }).forEach((entity) {
       files.add(entity);
       if(recursive && entity is Directory) {
-        subdirs.add(entity);
+        files.addAll(entity.listSync(recursive: true));
       }
     });
-
-    subdirs.forEach((dir) => files.addAll(dir.listSync(recursive: true)));
 
     return files;
   }
@@ -294,9 +474,9 @@ class Directory extends FileSystemEntity {
       return Future.wait(
         filenames.map((filename) {
           var filePath = pathModule.join([path, filename]);
-          return FileSystemEntity.isDirectory(filePath)
-              .then((isDirectory) {
-                if (isDirectory) {
+          return fs.lstat(filePath)
+              .then((stat) {
+                if (stat.isDirectory) {
                   return new Directory(filePath);
                 }
                 return new File(filePath);
@@ -334,7 +514,7 @@ class Directory extends FileSystemEntity {
     var subdirs = [];
     fs.readDirSync(path).map((filename) {
       var filePath = pathModule.join([path, filename]);
-      if (FileSystemEntity.isDirectorySync(filePath)) {
+      if (fs.lstatSync(filePath).isDirectory) {
         return new Directory(filePath);
       }
       return new File(filePath);
