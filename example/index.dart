@@ -104,9 +104,9 @@ main() {
   });
 
 
-  var dartInputDir = querySelector("#dart_readdir");
-  var dartTextElementDir = querySelector("#dart_readdirres");
-  var recursiveCheck = querySelector("#recursive");
+  var inputDir = querySelector("#input_file_dir");
+  var textElementDir = querySelector("#textarea_dircontent");
+  var checkboxRecursive = querySelector("#recursive");
 
   var buttonListDir = querySelector("#btn_listdir");
   var buttonPause = querySelector("#btn_pauselistdir");
@@ -116,16 +116,16 @@ main() {
   var subscription;
 
   buttonListDir.onClick.listen((event) {
-    if (dartInputDir.files.isEmpty) {
+    if (inputDir.files.isEmpty) {
       return;
     }
-    var dirPath = fs.getPath(dartInputDir.files[0]);
-    dartTextElementDir.value = "";
+    var dirPath = fs.getPath(inputDir.files[0]);
+    textElementDir.value = "";
     
     Directory dir = new Directory(dirPath);
-    subscription = dir.list(recursive: recursiveCheck.checked)
+    subscription = dir.list(recursive: checkboxRecursive.checked)
       .listen((entity) {
-          dartTextElementDir.value += "${entity is File ? 'File' : 'Directory'}: ${entity.path}\n";
+          textElementDir.value += "${entity is File ? 'File' : 'Directory'}: ${entity.path}\n";
         }, 
         onError: (err) => print("Error received while listing $dirPath: $err"), 
         onDone: () {

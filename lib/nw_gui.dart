@@ -1,3 +1,6 @@
+/**
+ * A Wrapper to the [nw.gui module](https://github.com/rogerwang/node-webkit/wiki/API-Overview-and-Notices)
+ */
 library nw_gui;
 
 import 'dart:js';

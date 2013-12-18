@@ -1,9 +1,19 @@
+/**
+ * Utility classes for wrapping nodejs modules.
+ *
+ * The main purpose of this library, is to avoid problems that arises
+ * when the classes of dart:js package are used directly with objects from node's context.
+ *
+ * Note: to learn more about JavaScript contexts in node-webkit, please refer to 
+ * <https://github.com/rogerwang/node-webkit/wiki/Differences-of-JavaScript-contexts>
+ *
+ * Additionally, this library can be used to convert a JavaScript API to Dart,
+ * properly converting callbacks and eventEmitters to futures and streams.
+ */
 library nodejs_module_wrapper;
 
 import 'dart:js';
 import 'dart:async';
-
-
 
 final JsObject _nodeJsModuleWrapper = context["NodeJsModuleWrapper"];
 
@@ -211,22 +221,18 @@ class _Callback {
       return;
     }
 
-    if (ret != null) {
-      if (_valueHandler != null) {
-        try {
-          _completer.complete(_valueHandler(ret));
-        } catch (err) {
-          if (_errorHandler != null) {
-            _completer.completeError(_errorHandler(err));
-          } else {
-            _completer.completeError(err);   
-          }
+    if (_valueHandler != null) {
+      try {
+        _completer.complete(_valueHandler(ret == null ? null : [ret]));
+      } catch (err) {
+        if (_errorHandler != null) {
+          _completer.completeError(_errorHandler(err));
+        } else {
+          _completer.completeError(err);   
         }
-      } else {
-        _completer.complete(ret);
       }
     } else {
-      _completer.complete();
+      _completer.complete(ret);
     }
   }
 
