@@ -5,9 +5,9 @@ node-webkit.dart is a [Dart](http://www.dartlang.org/) package that provides int
 
 To see how the node-webkit's API looks like in Dart, check out the sample application [here](https://github.com/luizmineo/node-webkit.dart/releases/tag/v0.0.1). Just download the *dart_examples.nw* archive, and open it with the node-webkit's executable. 
 
-´´´
+```
 nw dart_examples.nw
-´´´
+```
 
 Features
 ========
