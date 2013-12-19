@@ -81,5 +81,5 @@ String getUsername() {
 
 ```
 dart2js -o web/index.dart web/index.dart.js
-nw web/ World
+nw web/ User
 ```
