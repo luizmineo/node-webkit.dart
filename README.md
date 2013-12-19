@@ -1,4 +1,6 @@
 node-webkit.dart
 ================
 
-dart wrappers for node-webkit API
+node-webkit.dart is a [Dart]<http://www.dartlang.org/> package that provides integration with the [node-webkit]<https://github.com/rogerwang/node-webkit> runtime.
+
+
