@@ -1,7 +1,7 @@
 Introduction
 ============
 
-node-webkit.dart is a [Dart](http://www.dartlang.org/) package that provides integration with the [node-webkit](https://github.com/rogerwang/node-webkit) runtime.
+node-webkit.dart is a [Dart](http://www.dartlang.org/) package to build [node-webkit](https://github.com/rogerwang/node-webkit) apps.
 
 To see how the node-webkit's API looks like in Dart, check out the sample application [here](https://github.com/luizmineo/node-webkit.dart/releases/tag/v0.0.1). Just download the **dart_examples.nw** archive, and open it with node-webkit. 
 
