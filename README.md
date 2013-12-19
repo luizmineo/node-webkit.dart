@@ -60,7 +60,7 @@ name: my_app
 </html>
 ```
 
-- And finally, create a index.dart file in *web* folder
+- And finally, create a *index.dart* file in *web* folder
 
 ```dart
 
