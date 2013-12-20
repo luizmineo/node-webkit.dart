@@ -52,7 +52,7 @@ name: my_app
   <body>
     <script type="application/dart" src="index.dart"></script>
     <script src="packages/browser/interop.js"></script>
-    <script src="packages/node-webkit/node_webkit.js"></script>
+    <script src="packages/node_webkit/node_webkit.js"></script>
     <script src="packages/browser/dart.js"></script>
 
     <p id="msg"></p>
