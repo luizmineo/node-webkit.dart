@@ -1,6 +1,6 @@
 name: node_webkit
 author: Luiz Mineo <luiz.mineo@gmail.com>
-version: 0.0.1
+version: 0.0.2
 description: "node-webkit.dart is a Dart package to build node-webkit apps"
 homepage: https://github.com/luizmineo/node-webkit.dart
 dependencies:

@@ -9,8 +9,8 @@ library dart_filesystem;
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:node-webkit/path.dart' as pathModule;
-import 'package:node-webkit/node_filesystem.dart' as fs;
+import 'package:node_webkit/path.dart' as pathModule;
+import 'package:node_webkit/node_filesystem.dart' as fs;
 
 /**
  * A [FileSystemEntity] is a common super class for [File], [Link] and [Directory] objects.

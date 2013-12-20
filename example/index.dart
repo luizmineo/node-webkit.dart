@@ -2,9 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:html' hide File;
 
-import 'package:node-webkit/nw_gui.dart' as gui;
-import 'package:node-webkit/node_filesystem.dart' as fs;
-import 'package:node-webkit/dart_filesystem.dart';
+import 'package:node_webkit/nw_gui.dart' as gui;
+import 'package:node_webkit/node_filesystem.dart' as fs;
+import 'package:node_webkit/dart_filesystem.dart';
 
 main() {
 

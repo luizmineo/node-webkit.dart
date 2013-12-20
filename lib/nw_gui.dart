@@ -8,7 +8,7 @@ import 'dart:html' as html;
 import 'dart:async';
 import 'dart:collection';
 
-import 'package:node-webkit/nodejs_module_wrapper.dart';
+import 'package:node_webkit/nodejs_module_wrapper.dart';
 
 
 final NodeObject _gui = new NodeObject("nw.gui");

@@ -65,7 +65,7 @@ name: my_app
 ```dart
 
 import 'dart:html';
-import 'package:node-webkit/nw_gui.dart' as gui;
+import 'package:node_webkit/nw_gui.dart' as gui;
 
 main() {
   querySelector("#msg").text = "Hello, ${getUsername()}!";

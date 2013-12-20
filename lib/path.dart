@@ -10,7 +10,7 @@ library path;
 
 import 'dart:js';
 
-import 'package:node-webkit/nodejs_module_wrapper.dart';
+import 'package:node_webkit/nodejs_module_wrapper.dart';
 
 
 final NodeObject _path = new NodeObject("path");

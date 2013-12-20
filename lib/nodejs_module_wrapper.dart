@@ -1,5 +1,5 @@
 /**
- * Utility classes for wrapping nodejs modules.
+ * Utility classes for wrapping nodejs's modules.
  *
  * This library provides a way to properly wrap nodejs modules,
  * avoiding problems that can occur when objects coming from
