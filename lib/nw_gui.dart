@@ -140,7 +140,7 @@ class Window {
     return new Window._fromNodeObject(_Window.callFunctionAndWrap("open", [url, new JsObject.jsify(opts)]));
   }
 
-  html.Window get window => _window["window"];
+  JsObject get window => _window["window"];
 
   num get x => _window["x"];
 
