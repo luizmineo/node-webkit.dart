@@ -57,6 +57,7 @@ library nodejs_module_wrapper;
 
 import 'dart:js';
 import 'dart:async';
+import 'dart:collection';
 
 final JsObject _nodeJsModuleWrapper = context["NodeJsModuleWrapper"];
 
@@ -294,6 +295,42 @@ class EventEmitterException {
   EventEmitterException([String this.message]);
 
 }
+
+/**
+ * A wrapper for JavaScript arrays coming from node's context.
+ *
+ */
+class JsObjectListWrapper<T> extends ListBase<T> {
+
+  final JsObject _jsArray;
+
+  JsObjectListWrapper(this._jsArray);
+
+  get length => _jsArray["length"];
+
+  set length(int length) => throw new UnsupportedError("This List is immutable");
+
+  operator []= (int index, T value) => throw new UnsupportedError("This List is immutable");
+
+  T operator [] (int index) => _jsArray[index];
+
+}
+
+/**
+ * Convert a JsObject to Map
+ *
+ */
+Map<String, Object> toMap(JsObject obj, {Object valueHandler(Object obj)}) {
+  Map<String, Object> map = {};
+  context["Object"].callMethod("keys", [obj]).callMethod("forEach", [(key, idx, arr) {
+    if (valueHandler != null) {
+      map[key.toString()] = valueHandler(obj[key]);
+    } else {
+      map[key.toString()] = obj[key];
+    }
+  }]);
+  return map;
+} 
 
 
 class _Callback {

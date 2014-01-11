@@ -3,7 +3,7 @@ Introduction
 
 node-webkit.dart is a [Dart](http://www.dartlang.org/) package to build [node-webkit](https://github.com/rogerwang/node-webkit) apps.
 
-To see how the node-webkit's API looks like in Dart, check out the sample application [here](https://github.com/luizmineo/node-webkit.dart/releases/tag/v0.0.3). Just download the **dart_examples.nw** archive, and open it with node-webkit. 
+To see how the node-webkit's API looks like in Dart, check out the sample application [here](https://github.com/luizmineo/node-webkit.dart/releases/tag/v0.0.4). Just download the **dart_examples.nw** archive, and open it with node-webkit. 
 
 ```
 nw dart_examples.nw
@@ -18,6 +18,7 @@ This package provides the following libraries:
 - **path.dart**: A wrapper to the [path module](http://nodejs.org/api/path.html)
 - **node_filesystem.dart**: A wrapper to the [fs module](http://nodejs.org/api/fs.html)
 - **dart_filesystem.dart**: A complement to the node-filesystem library, wich provides the `FileSystemEntity`, `File`, `Directory` and `Link` classes, so you can access the filesystem just as you would do with `dart:io`
+- **os.dart**: A wrapper to the [OS module](http://nodejs.org/api/os.html)
 - **nodejs_module_wrapper.dart**: A helper library for wrapping nodejs's modules
 
 
@@ -32,7 +33,8 @@ name: my_app
  dependencies:
    node_webkit: any
 ```
-- Update dependencies
+- Update dependencies:
+
 ```
 pub get
 ```

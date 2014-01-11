@@ -7,7 +7,6 @@ library node_filesystem;
 
 import 'dart:js';
 import 'dart:async';
-import 'dart:collection';
 import 'dart:html' show File;
 
 import 'package:node_webkit/nodejs_module_wrapper.dart';
@@ -338,7 +337,7 @@ void utimesSync(String path, DateTime atime, DateTime mtime) {
  */
 Future<List<String>> readDir(String path) {
   return _fs.callFunction("readdir", [path], async: true, 
-      errorHandler: _createErrorHandler(path)).then((filenames) => new _JsObjectListWrapper<String>(filenames));
+      errorHandler: _createErrorHandler(path)).then((filenames) => new JsObjectListWrapper<String>(filenames));
 }
 
 /**
@@ -347,7 +346,7 @@ Future<List<String>> readDir(String path) {
  * Throws a [FileSystemException] if the operation fails.
  */
 List<String> readDirSync(String path) {
-  return new _JsObjectListWrapper<String>( _fs.callFunction("readdirSync", [path], errorHandler: _createErrorHandler(path)));
+  return new JsObjectListWrapper<String>( _fs.callFunction("readdirSync", [path], errorHandler: _createErrorHandler(path)));
 }
 
 /**
@@ -417,7 +416,7 @@ String readFileAsStringSync(String path, {String encoding: "utf8"}) {
  */
 Future<List<int>> readFile(String path) {
   return _fs.callFunction("readFile", [path], async: true, errorHandler: _createErrorHandler(path))
-      .then((data) => new _JsObjectListWrapper(data));
+      .then((data) => new JsObjectListWrapper(data));
 }
 
 /**
@@ -426,7 +425,7 @@ Future<List<int>> readFile(String path) {
  * Throws a [FileSystemException] if the operation fails.
  */
 List<int> readFileSync(String path) {
-  return new _JsObjectListWrapper(_fs.callFunction("readFileSync", [path], errorHandler: _createErrorHandler(path)));
+  return new JsObjectListWrapper(_fs.callFunction("readFileSync", [path], errorHandler: _createErrorHandler(path)));
 }
 
 /**
@@ -533,7 +532,7 @@ void appendFileSync(String path, List<int> data, {String flags, int mode}) {
  * Returns a Stream that consumes the underlying ReadStream in flowing mode.
  */
 Stream<List<int>> openRead(String path, {String flags, mode, int start, int end}) {
-  return _createReadStream(path, start: start, end: end, handler: (data) => new _JsObjectListWrapper<int>(data));
+  return _createReadStream(path, start: start, end: end, handler: (data) => new JsObjectListWrapper<int>(data));
 }
 
 /**
@@ -556,7 +555,7 @@ Stream<String> openReadAsString(String path, {String flags, mode, int start, int
  */
 FileInputStream<List<int>> openReadSync(String path, {String flags, mode, int start, int end}) {
   return _createFileInputStream(path, start: start, end: end, 
-      handler: (data) => data != null ? new _JsObjectListWrapper<int>(data) : null);
+      handler: (data) => data != null ? new JsObjectListWrapper<int>(data) : null);
 }
 
 /**
@@ -762,22 +761,6 @@ class FileInputStream<T> {
   void close() {
     _reader.callFunction("destroy", []);
   }
-
-}
-
-class _JsObjectListWrapper<T> extends ListBase<T> {
-
-  final JsObject _bf;
-
-  _JsObjectListWrapper(this._bf);
-
-  get length => _bf["length"];
-
-  set length(int length) => throw new UnsupportedError("This List is immutable");
-
-  operator []= (int index, T value) => throw new UnsupportedError("This List is immutable");
-
-  T operator [] (int index) => _bf[index];
 
 }
  

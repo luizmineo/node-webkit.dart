@@ -1,8 +1,7 @@
-
 /**
  * Collection of functions to handle file paths.
  *
- * This library is a wrapper to the [nodejs path module](http://nodejs.org/api/path.html)
+ * This library is a wrapper to the [nodejs's path module](http://nodejs.org/api/path.html)
  * Errors thrown by nodejs are wrapped by the [PathException] class.
  * 
  */
