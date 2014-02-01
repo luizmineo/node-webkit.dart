@@ -1,4 +1,9 @@
 
+## v0.0.5
+- `dart_filesystem.dart`: Added methods `File.copy()` and `File.copySync()` (Dart SDK v1.1)
+- `node_filesystem.dart`: Small fixes and improvements
+- Updated examples (file copy)
+
 ## v0.0.4
 - New module: `os.dart`
 

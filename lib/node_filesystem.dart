@@ -21,8 +21,8 @@ String getPath(File file) {
   return getNativeProperty(file, "path");
 }
 
-Function _createErrorHandler(path) 
-    => (JsObject error) => new FileSystemException(error["message"], path);
+Function _createErrorHandler(path) =>
+    (JsObject error) => new FileSystemException(error["message"], path);
 
 /**
  * See <http://nodejs.org/api/fs.html#fs_fs_realpath_path_cache_callback>
@@ -458,7 +458,7 @@ void writeFileAsStringSync(String path, String data, {String flags, int mode, St
  */
 Future<String> writeFile(String path, List<int> data, {String flags, int mode}) {
   return new Future.sync(() {
-    var jsBuffer = new JsObject(context['Buffer'], [new JsObject.jsify(data)]);
+    var jsBuffer = new Buffer.fromList(data);
     return _fs.callFunction("writeFile", [path, jsBuffer, 
       _createOptsObj(flags: flags, mode: mode)], async: true, 
           errorHandler: _createErrorHandler(path), valueHandler: (_) => path);
@@ -471,7 +471,7 @@ Future<String> writeFile(String path, List<int> data, {String flags, int mode}) 
  * Throws a [FileSystemException] if the operation fails.
  */
 void writeFileSync(String path, List<int> data, {String flags, int mode}) {
-  var jsBuffer = new JsObject(context['Buffer'], [new JsObject.jsify(data)]);
+  var jsBuffer = new Buffer.fromList(data);
   _fs.callFunction("writeFileSync", [path, jsBuffer, 
       _createOptsObj(flags: flags, mode: mode)], errorHandler: _createErrorHandler(path));
 }
@@ -506,7 +506,7 @@ void appendFileAsStringSync(String path, String data, {String flags, int mode, e
  */
 Future<String> appendFile(String path, List<int> data, {String flags, int mode}) {
   return new Future.sync(() {
-    var jsBuffer = new JsObject(context['Buffer'], [new JsObject.jsify(data)]);
+    var jsBuffer = new Buffer.fromList(data);
     return _fs.callFunction("appendFile", [path, jsBuffer, 
       _createOptsObj(flags: flags, mode: mode)], async: true, 
           errorHandler: _createErrorHandler(path), valueHandler: (_) => path);
@@ -519,9 +519,172 @@ Future<String> appendFile(String path, List<int> data, {String flags, int mode})
  * Throws a [FileSystemException] if the operation fails.
  */
 void appendFileSync(String path, List<int> data, {String flags, int mode}) {
-  var jsBuffer = new JsObject(context['Buffer'], [new JsObject.jsify(data)]);
+  var jsBuffer = new Buffer.fromList(data);
   _fs.callFunction("appendFileSync", [path, jsBuffer, 
       _createOptsObj(flags: flags, mode: mode)], errorHandler: _createErrorHandler(path));
+}
+
+/**
+ * Asynchronous file open.
+ *
+ * See <http://nodejs.org/api/fs.html#fs_fs_open_path_flags_mode_callback>
+ *
+ * Returns a Future<int> that completes with the file descriptor, once the entire operation has completed,
+ * or with a [FileSystemException], if the operation fails.
+ */
+Future<int> open(String path, String flags, [int mode]) {
+  var args = [path, flags];
+  if (mode != null) {
+    args.add(mode);
+  }
+  return _fs.callFunction("open", args, async: true, 
+      errorHandler: _createErrorHandler(path));
+}
+
+/**
+ * Synchronous file open.
+ *
+ * See <http://nodejs.org/api/fs.html#fs_fs_opensync_path_flags_mode>
+ *
+ * Returns a file descriptor. Throws a [FileSystemException] if the operation fails.
+ */
+int openSync(String path, String flags, [int mode]) {
+  var args = [path, flags];
+  if (mode != null) {
+    args.add(mode);
+  }
+  return _fs.callFunction("openSync", args,
+      errorHandler: _createErrorHandler(path));
+}
+
+/**
+ * Asynchronous close(2).
+ *
+ * See <http://nodejs.org/api/fs.html#fs_fs_close_fd_callback>
+ *
+ * Returns a Future<int> that completes with the closed file descriptor, once the entire operation has completed,
+ * or with a [FileSystemException], if the operation fails.
+ */
+Future<int> close(int fd) {
+  return _fs.callFunction("close", [fd], async: true, 
+      errorHandler: _createErrorHandler("fd: $fd"), valueHandler: (_) => fd);
+}
+
+/**
+ * Synchronous close(2).
+ *
+ * See <http://nodejs.org/api/fs.html#fs_fs_closesync_fd>
+ *
+ * Throws a [FileSystemException] if the operation fails.
+ */
+void closeSync(int fd) {
+  _fs.callFunction("closeSync", [fd],
+      errorHandler: _createErrorHandler("fd: $fd"));
+} 
+
+/**
+ * See <http://nodejs.org/api/fs.html#fs_fs_futimes_fd_atime_mtime_callback>
+ *
+ * Returns a Future<int> that completes with the file descriptor, once the entire operation has completed,
+ * or with a [FileSystemException], if the operation fails.
+ */
+Future<int> futimes(int fd, DateTime atime, DateTime mtime) {
+  return _fs.callFunction("futimes", [fd, atime, mtime], async: true, 
+      errorHandler: _createErrorHandler("fd: $fd"), valueHandler: (_) => fd);
+}
+
+/**
+ * See <http://nodejs.org/api/fs.html#fs_fs_futimessync_fd_atime_mtime>
+ *
+ * Throws a [FileSystemException] if the operation fails.
+ */
+void futimesSync(int fd, DateTime atime, DateTime mtime) {
+  _fs.callFunction("futimesSync", [fd, atime, mtime], errorHandler: _createErrorHandler("fd: $fd"));
+}
+
+/**
+ * See <http://nodejs.org/api/fs.html#fs_fs_fsync_fd_callback>
+ *
+ * Returns a Future<int> that completes with the file descriptor, once the entire operation has completed,
+ * or with a [FileSystemException], if the operation fails.
+ */
+Future<int> fsync(int fd) {
+  return _fs.callFunction("fsync", [fd], async: true, 
+      errorHandler: _createErrorHandler("fd: $fd"), valueHandler: (_) => fd);
+}
+
+/**
+ * See <http://nodejs.org/api/fs.html#fs_fs_fsyncsync_fd>
+ *
+ * Throws a [FileSystemException] if the operation fails.
+ */
+void fsyncSync(int fd) {
+  _fs.callFunction("fsyncSync", [fd],
+      errorHandler: _createErrorHandler("fd: $fd"));
+}
+
+/**
+ *
+ * Write [buffer] to the file specified by [fd].
+ *
+ * See <http://nodejs.org/api/fs.html#fs_fs_write_fd_buffer_offset_length_position_callback>
+ *
+ * Returns a Future<int> that completes with the number of bytes written, once the entire 
+ * operation has completed, or with a [FileSystemException], if the operation fails.
+ */
+Future<int> write(int fd, Buffer buffer, int offset, int length, [int position]) {
+  return _fs.callFunction("write", [fd, buffer.jsObject, offset, length, position], async: true, 
+      errorHandler: _createErrorHandler("fd: $fd"), valueHandler: (values) {
+        if (values[0] != null) {
+          throw values[0];
+        }
+        return values[1];
+      });
+}
+
+/**
+ *
+ * Write [buffer] to the file specified by [fd].
+ *
+ * See <http://nodejs.org/api/fs.html#fs_fs_write_fd_buffer_offset_length_position_callback>
+ *
+ * Returns the number of bytes written. Throws a [FileSystemException] if the operation fails.
+ */
+int writeSync(int fd, Buffer buffer, int offset, int length, [int position]) {
+  _fs.callFunction("writeSync", [fd, buffer.jsObject, offset, length, position],
+      errorHandler: _createErrorHandler("fd: $fd"));
+}
+
+/**
+ *
+ * Read data from the file specified by [fd].
+ *
+ * See <http://nodejs.org/api/fs.html#fs_fs_read_fd_buffer_offset_length_position_callback>
+ *
+ * Returns a Future<int> that completes with the number of bytes read, once the entire 
+ * operation has completed, or with a [FileSystemException], if the operation fails.
+ */
+Future<int> read(int fd, Buffer buffer, int offset, int length, [int position]) {
+  return _fs.callFunction("read", [fd, buffer.jsObject, offset, length, position], async: true, 
+      errorHandler: _createErrorHandler("fd: $fd"), valueHandler: (values) {
+        if (values[0] != null) {
+          throw values[0];
+        }
+        return values[1];
+      });
+}
+
+/**
+ *
+ * Read data from the file specified by [fd].
+ *
+ * See <http://nodejs.org/api/fs.html#fs_fs_readsync_fd_buffer_offset_length_position>
+ *
+ * Returns the number of bytes read. Throws a [FileSystemException] if the operation fails.
+ */
+int readSync(int fd, Buffer buffer, int offset, int length, [int position]) {
+  return _fs.callFunction("readSync", [fd, buffer.jsObject, offset, length, position],
+      errorHandler: _createErrorHandler("fd: $fd"));
 }
 
 /**
@@ -531,8 +694,8 @@ void appendFileSync(String path, List<int> data, {String flags, int mode}) {
  *
  * Returns a Stream that consumes the underlying ReadStream in flowing mode.
  */
-Stream<List<int>> openRead(String path, {String flags, mode, int start, int end}) {
-  return _createReadStream(path, start: start, end: end, handler: (data) => new JsObjectListWrapper<int>(data));
+Stream<List<int>> openRead(String path, {String flags, int mode, int start, int end}) {
+  return _createReadStream(path, flags: flags, mode: mode, start: start, end: end, handler: (data) => new JsObjectListWrapper<int>(data));
 }
 
 /**
@@ -542,8 +705,8 @@ Stream<List<int>> openRead(String path, {String flags, mode, int start, int end}
  *
  * Returns a Stream that consumes the underlying ReadStream in flowing mode.
  */
-Stream<String> openReadAsString(String path, {String flags, mode, int start, int end, String encoding: "utf8"}) {
-  return _createReadStream(path, start: start, end: end, encoding: encoding);
+Stream<String> openReadAsString(String path, {String flags, int mode, int start, int end, String encoding: "utf8"}) {
+  return _createReadStream(path, flags: flags, mode: mode, start: start, end: end, encoding: encoding);
 }
 
 /**
@@ -553,8 +716,8 @@ Stream<String> openReadAsString(String path, {String flags, mode, int start, int
  *
  * Returns a [FileInputStream], that allows to consume the underlying ReadStream in non-flowing mode.
  */
-FileInputStream<List<int>> openReadSync(String path, {String flags, mode, int start, int end}) {
-  return _createFileInputStream(path, start: start, end: end, 
+FileInputStream<List<int>> openReadSync(String path, {String flags, int mode, int start, int end}) {
+  return _createFileInputStream(path, flags: flags, mode: mode, start: start, end: end, 
       handler: (data) => data != null ? new JsObjectListWrapper<int>(data) : null);
 }
 
@@ -565,8 +728,8 @@ FileInputStream<List<int>> openReadSync(String path, {String flags, mode, int st
  *
  * Returns a [FileInputStream], that allows to consume the underlying ReadStream in non-flowing mode.
  */
-FileInputStream<String> openReadAsStringSync(String path, {String flags, mode, int start, int end, String encoding: "utf8"}) {
-  return _createFileInputStream(path, start: start, end: end, encoding: encoding);
+FileInputStream<String> openReadAsStringSync(String path, {String flags, int mode, int start, int end, String encoding: "utf8"}) {
+  return _createFileInputStream(path, flags: flags, start: start, end: end, mode: mode, encoding: encoding);
 }
 
 /**
@@ -763,6 +926,33 @@ class FileInputStream<T> {
   }
 
 }
+
+/**
+ *
+ * Simple wrapper for Buffer objects
+ */
+class Buffer {
+  
+  JsObject _buffer;
+
+  Buffer(int length) {
+    _buffer = new JsObject(context['Buffer'], [length]);
+  }
+
+  Buffer.fromList(List<int> data) {
+    _buffer = new JsObject(context['Buffer'], [new JsObject.jsify(data)]);
+  }
+
+  get length => _buffer["length"];
+
+  operator []= (int index, int value) => _buffer[index] = value;
+
+  int operator [] (int index) => _buffer[index];
+
+  get jsObject => _buffer;
+
+}
+
  
 JsObject _createOptsObj({String flags, int mode, int start, int end, String encoding}) {
   var opts = {"encoding": encoding};

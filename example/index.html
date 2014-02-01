@@ -290,6 +290,7 @@ Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor 
       <div class="alert alert-warning" style="margin-top:10px"><strong>Warning: </strong> If the destiny file already exists, it will be overwritten</div>
       <div style="padding-bottom:10px">
         <button id="btn_copy_file" type="button" class="btn btn-primary">Copy</button>
+        <button id="btn_copysync_file" type="button" class="btn btn-primary">Copy Sync</button>
       </div>
 
       <p id="copy_progress"></p>
@@ -298,6 +299,7 @@ Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor 
   var inputFileFrom = querySelector("#input_file_copy_from");
   var inputFileTo = querySelector("#input_file_copy_to");
   var buttonCopy = querySelector("#btn_copy_file");
+  var buttonCopySync = querySelector("#btn_copysync_file");
   var progress = querySelector("#copy_progress");
 
   buttonCopy.onClick.listen((event) {
@@ -307,42 +309,52 @@ Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor 
     }
 
     File fileFrom = new File(fs.getPath(inputFileFrom.files[0]));
-    File fileTo = new File(fs.getPath(inputFileTo.files[0]));
+    String fileTo = fs.getPath(inputFileTo.files[0]);
 
-    var writer;
-    try {
-      writer = fileTo.openWrite();
-    } catch (err) {
-      print("Failed to open file ${fileTo.path}: $err");
-      progress.text = "Failed to open file ${fileTo.path}: $err";
+    <b>fileFrom.copy(fileTo).then((_) {
+      print("File ${fileFrom.path} copied to $fileTo");
+      progress.text = "File ${fileFrom.path} copied to $fileTo";
+    }).catchError((err) {
+      print(err);
+      progress.text = "Error: $err";
+    }).whenComplete(() {
+      buttonCopy.disabled = false;
+      buttonCopySync.disabled = false;
+    });</b>
+    
+    progress.text = "Copying file...";
+    buttonCopy.disabled = true;
+    buttonCopySync.disabled = true;
+  });
+
+  buttonCopySync.onClick.listen((event) {
+
+    if (inputFileFrom.files.isEmpty || inputFileTo.files.isEmpty) {
+      return;
     }
 
-    var reader;
-    try {
-      reader = fileFrom.openReadSync();
-    } catch (err) {
-      print("Failed to open file ${fileFrom.path}: $err");
-      progress.text = "Failed to open file ${fileFrom.path}: $err";
-    }
+    File fileFrom = new File(fs.getPath(inputFileFrom.files[0]));
+    String fileTo = fs.getPath(inputFileTo.files[0]);
 
     progress.text = "Copying file...";
+    buttonCopy.disabled = true;
+    buttonCopySync.disabled = true;
 
-    reader.onReadable.listen((_) {
-      var data;
-      while ((data = reader.read(1024)) != null) {
-        writer.write(data);
-      }
-    });
-    reader.onEnd.listen((_) {
-      writer.close();
-      print("File ${fileFrom.path} copied to ${fileTo.path}");
-      progress.text = "File ${fileFrom.path} copied to ${fileTo.path}";
-    });
-    reader.onError.listen((err) {
-      print("Failed to copy file: $err");
-      progress.text = "Failed to copy file: $err";
-    });
+    new Future(() {
+      <b>try {
+        fileFrom.copySync(fileTo);
 
+        print("File ${fileFrom.path} copied to $fileTo");
+        progress.text = "File ${fileFrom.path} copied to $fileTo";
+
+      } catch (err) {
+        print(err);
+        progress.text = "Error: $err";      
+      }</b>
+    }).then((_) {
+      buttonCopy.disabled = false;
+      buttonCopySync.disabled = false;
+    });
   });
       </pre>
 

@@ -457,6 +457,69 @@ class File extends FileSystemEntity {
     return fs.writeFileAsStringSync(path, contents, 
         flags: flags, mode: mode, encoding: encoding);
   }
+
+  /**
+   * Copy this file. Returns a [Future<File>] that completes with a [File] instance for the copied file.
+   *
+   * If newPath identifies an existing file, that file is replaced. If newPath identifies an 
+   * existing directory, the operation fails and the future completes with an exception.
+   */
+  Future<File> copy(String newPath) {
+    return new Future.sync(() {
+
+      var completer = new Completer();
+      var stream = fs.openRead(path);
+      var writer = fs.openWrite(newPath);
+
+      stream.listen((data) {
+        writer.write(data);
+      }, onError: (err) {
+        writer.close();
+        completer.completeError(err);
+      }, onDone: () {
+        writer.close();
+        completer.complete(new File(newPath));
+      });
+
+      return completer.future;
+    });
+  }
+
+  /**
+   * Synchronously copy this file. Returns a [File] instance for the copied file.
+   *
+   * If newPath identifies an existing file, that file is replaced. If newPath identifies an 
+   * existing directory, the operation fails and the future completes with an exception.
+   */
+  File copySync(String newPath) {
+
+    const length = 1024 * 64;
+    int fdr = null, fdw = null;
+    
+    try {
+      var buffer = new fs.Buffer(length);
+      fdr = fs.openSync(path, "r");
+      fdw = fs.openSync(newPath, "w");
+
+      int bytesRead = 1, pos = 0;
+      while (bytesRead > 0) {
+        bytesRead = fs.readSync(fdr, buffer, 0, length, pos);
+        fs.writeSync(fdw, buffer, 0, bytesRead);
+        pos += bytesRead;
+      }
+    } finally {
+      if (fdr != null) {
+        fs.closeSync(fdr);
+      }
+      if (fdw != null) {
+        fs.closeSync(fdw);
+      }
+    }
+
+
+    return new File(newPath);
+  }
+
 }
 
 /**

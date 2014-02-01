@@ -3,7 +3,7 @@ Introduction
 
 node-webkit.dart is a [Dart](http://www.dartlang.org/) package to build [node-webkit](https://github.com/rogerwang/node-webkit) apps.
 
-To see how the node-webkit's API looks like in Dart, check out the sample application [here](https://github.com/luizmineo/node-webkit.dart/releases/tag/v0.0.4). Just download the **dart_examples.nw** archive, and open it with node-webkit. 
+To see how the node-webkit's API looks like in Dart, check out the sample application [here](https://github.com/luizmineo/node-webkit.dart/releases/tag/v0.0.5). Just download the **dart_examples.nw** archive, and open it with node-webkit. 
 
 ```
 nw dart_examples.nw
@@ -26,7 +26,7 @@ Quick Start
 ===========
 
 - Create a Dart package (you can follow the instructions [here](http://pub.dartlang.org/doc/))
-- Add node-webkit.dart as a dependency
+- Add node-webkit.dart as a dependency in `pubspec.yaml` file
 
 ```
 name: my_app

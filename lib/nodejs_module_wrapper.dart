@@ -377,7 +377,15 @@ class _Callback {
           invocation.positionalArguments, invocation.namedArguments);
     }
 
-    _completer.complete(_valueHandler(invocation.positionalArguments));
+    try {
+      _completer.complete(_valueHandler(invocation.positionalArguments));
+    } catch (err) {
+      if (_errorHandler != null) {
+        _completer.completeError(_errorHandler(err));
+      } else {
+        _completer.completeError(err);   
+      }
+    }
   }
 
 }

@@ -14,6 +14,13 @@ import 'package:node_webkit/nodejs_module_wrapper.dart';
 final NodeObject _os = new NodeObject("os");
 
 /**
+ * A constant defining the appropriate End-of-line marker for the operating system.
+ *
+ * See <http://nodejs.org/api/os.html#os_os_eol> for more information.
+ */
+final String EOL = _os["EOL"];
+
+/**
  * Returns the operating system's default directory for temp files.
  *
  * See <http://nodejs.org/api/os.html#os_os_tmpdir> for more information.
