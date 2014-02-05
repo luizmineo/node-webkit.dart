@@ -1,4 +1,7 @@
 
+## v0.0.6
+- Fix: Some functions in `node_filesystem.dart` are not handling Buffer objects properly
+
 ## v0.0.5
 - `dart_filesystem.dart`: Added methods `File.copy()` and `File.copySync()` (Dart SDK v1.1)
 - `node_filesystem.dart`: Small fixes and improvements

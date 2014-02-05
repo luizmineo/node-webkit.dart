@@ -459,7 +459,7 @@ void writeFileAsStringSync(String path, String data, {String flags, int mode, St
 Future<String> writeFile(String path, List<int> data, {String flags, int mode}) {
   return new Future.sync(() {
     var jsBuffer = new Buffer.fromList(data);
-    return _fs.callFunction("writeFile", [path, jsBuffer, 
+    return _fs.callFunction("writeFile", [path, jsBuffer.jsObject, 
       _createOptsObj(flags: flags, mode: mode)], async: true, 
           errorHandler: _createErrorHandler(path), valueHandler: (_) => path);
   });
@@ -472,7 +472,7 @@ Future<String> writeFile(String path, List<int> data, {String flags, int mode}) 
  */
 void writeFileSync(String path, List<int> data, {String flags, int mode}) {
   var jsBuffer = new Buffer.fromList(data);
-  _fs.callFunction("writeFileSync", [path, jsBuffer, 
+  _fs.callFunction("writeFileSync", [path, jsBuffer.jsObject, 
       _createOptsObj(flags: flags, mode: mode)], errorHandler: _createErrorHandler(path));
 }
 
@@ -507,7 +507,7 @@ void appendFileAsStringSync(String path, String data, {String flags, int mode, e
 Future<String> appendFile(String path, List<int> data, {String flags, int mode}) {
   return new Future.sync(() {
     var jsBuffer = new Buffer.fromList(data);
-    return _fs.callFunction("appendFile", [path, jsBuffer, 
+    return _fs.callFunction("appendFile", [path, jsBuffer.jsObject, 
       _createOptsObj(flags: flags, mode: mode)], async: true, 
           errorHandler: _createErrorHandler(path), valueHandler: (_) => path);
   });
@@ -520,7 +520,7 @@ Future<String> appendFile(String path, List<int> data, {String flags, int mode})
  */
 void appendFileSync(String path, List<int> data, {String flags, int mode}) {
   var jsBuffer = new Buffer.fromList(data);
-  _fs.callFunction("appendFileSync", [path, jsBuffer, 
+  _fs.callFunction("appendFileSync", [path, jsBuffer.jsObject, 
       _createOptsObj(flags: flags, mode: mode)], errorHandler: _createErrorHandler(path));
 }
 
