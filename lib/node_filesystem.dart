@@ -651,7 +651,7 @@ Future<int> write(int fd, Buffer buffer, int offset, int length, [int position])
  * Returns the number of bytes written. Throws a [FileSystemException] if the operation fails.
  */
 int writeSync(int fd, Buffer buffer, int offset, int length, [int position]) {
-  _fs.callFunction("writeSync", [fd, buffer.jsObject, offset, length, position],
+  return _fs.callFunction("writeSync", [fd, buffer.jsObject, offset, length, position],
       errorHandler: _createErrorHandler("fd: $fd"));
 }
 

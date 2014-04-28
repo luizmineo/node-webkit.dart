@@ -1,4 +1,8 @@
 
+## v0.0.7
+- Updated to browser `0.10.x`
+- Updated documentation (removed `browser/interop.js`)
+
 ## v0.0.6
 - Fix: Some functions in `node_filesystem.dart` are not handling Buffer objects properly
 
