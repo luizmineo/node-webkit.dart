@@ -1,8 +1,5 @@
-**Unfortunatelly, I won't be able to maintain this project (and any other open-source project) in the foreseeable future. I'm terrible sorry for this, and if you are relying on this code base for your project(s), please, accept my apologies.** 
 
-**Also, if you have the interest, feel free to fork this repository and improve it.**
-
-**For all you guys who have helped me improving this project, my sincere thanks.**
+*DEPRECATED: This project is unmaintained for a long time, and is not compatible with Dart 2.x and newer.*
 
 Introduction
 ============
